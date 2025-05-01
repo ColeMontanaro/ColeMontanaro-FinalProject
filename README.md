@@ -2,75 +2,145 @@
 
 Amazon Product Co-Purchasing Network Analysis
 
-Overview
+Project Overview
 
-This project analyzes the Amazon Product Co-Purchasing Network using graph algorithms implemented in Rust. It focuses on identifying strongly connected components (SCCs), measuring centrality, and exploring community structure to reveal key insights about the dataset's topology.
+Goal: Identify structural communities and influential products in the Amazon Product Co-Purchasing Network by computing strongly connected components (SCCs) and centrality measures.
 
-Dataset
+Dataset:
 
-The analysis is based on the following files located in the data/ directory:
+Name: Amazon Product Co-Purchasing Network
 
-com-amazon.ungraph.txt: An undirected graph where nodes represent products and edges represent frequent co-purchasing.
+Source: Stanford Network Analysis Project (SNAP)
 
-com-amazon.all.dedup.cmty.txt: Community data identifying groups of related products.
+Files Used:
 
-Project Structure
+com-amazon.ungraph.txt (unweighted graph of co-purchases)
 
-main.rs: Entry point that loads the graph, computes SCCs, and prints top centrality nodes.
+com-amazon.all.dedup.cmty.txt (community annotations — not used in this version)
 
-graph.rs: Loads and parses the co-purchasing graph.
+Size: ~334,863 nodes, ~925,872 edges
 
-scc.rs: Implements Kosaraju's algorithm to compute strongly connected components.
+Link: https://snap.stanford.edu/data/com-Amazon.html
 
-centrality.rs: Computes degree centrality and supports BFS for potential enhancements.
+Data Processing
 
-community.rs: (Optional) Placeholder for future community detection logic.
+The data is stored in a data/ directory and read using standard file I/O (BufReader).
 
-tests.rs: Includes a unit test validating the SCC algorithm on a small example graph.
+Only lines with actual edge data (non-comment) are parsed.
 
-Key Algorithms
+Each edge is added to an adjacency list structure (HashMap<u32, HashSet<u32>>), treating the graph as undirected.
 
-Strongly Connected Components (SCC)
+Code Structure
 
-Implemented using Kosaraju's algorithm:
+Modules:
 
-Perform a DFS to get finishing times.
+graph.rs – Loads and represents the graph.
 
-Transpose the graph.
+centrality.rs – Computes degree centrality and includes BFS (unused).
 
-DFS in order of finishing times to extract SCCs.
+scc.rs – Implements Kosaraju’s algorithm for strongly connected components.
 
-Centrality
+community.rs – Placeholder (future use).
 
-Degree centrality is computed as the number of direct neighbors each node has. Nodes with the highest degree are likely influential or popular products.
+tests.rs – Contains unit tests.
 
-Running the Project
+Key Functions & Types:
 
-To compile and test the project:
+graph::load_graph
+
+Purpose: Load an undirected graph from text file.
+
+Input: File path (&str)
+
+Output: HashMap<u32, HashSet<u32>>
+
+Logic: Parses pairs of product IDs and creates mutual links.
+
+centrality::degree_centrality
+
+Purpose: Compute the number of connections (degree) for each node.
+
+Input: Graph
+
+Output: Sorted vector of (node_id, degree) pairs.
+
+scc::kosaraju_scc
+
+Purpose: Detect SCCs using Kosaraju’s two-pass DFS algorithm.
+
+Input: Graph
+
+Output: Vec<Vec<u32>> — list of components
+
+Logic:
+
+DFS to fill stack by finish time
+
+Transpose the graph
+
+DFS on transposed graph using popped order
+
+Main Workflow
+
+Load the graph.
+
+Compute SCCs and identify the largest component.
+
+Calculate and print top-5 nodes by degree centrality.
+
+Tests
+
+Output
+
+running 1 test
+test tests::tests::test_scc ... ok
+
+Explanation
+
+test_scc: Verifies correctness of SCC detection on a small hardcoded graph.
+
+2 known SCCs are compared with expected components using HashSet.
+
+Results
+
+Loaded graph with 334863 nodes
+Found 1 strongly connected components
+Largest SCC size: 334863
+Top 5 nodes by degree:
+Node 548091: degree 549
+Node 458358: degree 324
+Node 222074: degree 257
+Node 199628: degree 230
+Node 515301: degree 228
+
+Interpretation
+
+The Amazon product network is densely interconnected — a single giant SCC includes all nodes.
+
+The most connected nodes (high degree) may represent essential or popular products.
+
+Usage Instructions
+
+Build and Run
 
 cargo build
 cargo run
+
+Testing
+
 cargo test
 
-Output Example
+Runtime
 
-Loaded graph with XXXXX nodes
-Found YYYY strongly connected components
-Largest SCC size: ZZZZ
-Top 5 nodes by degree:
-Node A: degree 123
-Node B: degree 117
-...
+Runtime: ~5–10 seconds (depends on system)
 
-Requirements
+Requirements: Rust toolchain
 
-Ensure you have the following installed:
+No command-line arguments required.
 
-Rust
+Notes
 
-The dataset files extracted into the data/ directory
+The bfs function is included but currently unused.
 
-Final Notes
-
-This project is a final deliverable for a data science course using Rust to analyze real-world graphs. The core focus is on graph structure understanding and algorithmic implementation in a systems programming context.
+Community detection (community.rs) is a placeholder for potential modularity analysis in future versions.
 
