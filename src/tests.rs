@@ -1,6 +1,7 @@
+use crate::scc;
+
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::collections::{HashSet, HashMap};
 
     #[test]

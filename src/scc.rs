@@ -1,50 +1,55 @@
 use std::collections::{HashMap, HashSet};
 
-fn dfs(graph: &HashMap<u32, HashSet<u32>>, node: u32, visited: &mut HashSet<u32>, stack: &mut HashSet<u32>) {
+fn dfs(graph: &HashMap<u32, HashSet<u32>>, node: u32, visited: &mut HashSet<u32>, stack: &mut Vec<u32>) {
     visited.insert(node);
-    if let Some(neighbors) = graph.get(&node) {
-        for &neighbor in neighbors {
-            if !visited.contains(&neighbor) {
-                dfs(graph, neighbor, visited, stack);
-            }
+    for &neighbor in graph.get(&node).unwrap_or(&HashSet::new()) {
+        if !visited.contains(&neighbor) {
+            dfs(graph, neighbor, visited, stack);
         }
     }
-    stack.insert(node);  // Use insert instead of push for HashSet
+    stack.push(node);
 }
 
-fn transpose_graph(graph: &HashMap<u32, HashSet<u32>>) -> HashMap<u32, HashSet<u32>> {
-    let mut transposed = HashMap::new();
-    for (node, neighbors) in graph {
-        for &neighbor in neighbors {
-            transposed.entry(neighbor).or_insert_with(HashSet::new).insert(*node);
+fn transpose(graph: &HashMap<u32, HashSet<u32>>) -> HashMap<u32, HashSet<u32>> {
+    let mut transposed_graph: HashMap<u32, HashSet<u32>> = HashMap::new();
+    
+    for (&node, neighbors) in graph.iter() {
+        for &neighbor in neighbors.iter() {
+            transposed_graph
+                .entry(neighbor)
+                .or_insert_with(HashSet::new)
+                .insert(node);
         }
     }
-    transposed
+
+    transposed_graph
 }
 
 // src/scc.rs
-pub fn kosaraju_scc(graph: &HashMap<u32, HashSet<u32>>) -> Vec<HashSet<u32>> {
+pub fn kosaraju_scc(graph: &HashMap<u32, HashSet<u32>>) -> Vec<Vec<u32>> {
     let mut visited = HashSet::new();
-    let mut stack = HashSet::new();  // Change to HashSet
-    // Step 1: Fill vertices in stack according to their finishing times
+    let mut stack = Vec::new();
+    let mut sccs: Vec<Vec<u32>> = Vec::new(); // Changed to Vec<Vec<u32>>
+
+    // First DFS loop to populate the stack with the finish times of nodes
     for &node in graph.keys() {
         if !visited.contains(&node) {
-            dfs(graph, node, &mut visited, &mut stack);
+            dfs(graph, node, &mut visited, &mut stack);  // stack is now a Vec<u32>
         }
     }
 
-    // Step 2: Transpose the graph
-    let transposed_graph = transpose_graph(graph);
-    visited.clear();
+    // Transpose the graph
+    let transposed_graph = transpose(graph);
 
-    // Step 3: Perform DFS on the transposed graph using nodes in stack order
-    let mut sccs = Vec::new();
-    while let Some(node) = stack.iter().next().cloned() {
+    // Second DFS loop to find the strongly connected components
+    visited.clear();
+    while let Some(node) = stack.pop() {
         if !visited.contains(&node) {
-            let mut scc = HashSet::new();
+            let mut scc: Vec<u32> = Vec::new(); // Changed to Vec<u32>
             dfs(&transposed_graph, node, &mut visited, &mut scc);
             sccs.push(scc);
         }
     }
+
     sccs
 }
