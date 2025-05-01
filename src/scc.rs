@@ -1,13 +1,14 @@
 use std::collections::{HashMap, HashSet};
 
-fn dfs(graph: &HashMap<u32, HashSet<u32>>, node: u32, visited: &mut HashSet<u32>, stack: &mut Vec<u32>) {
-    visited.insert(node);
-    for &neighbor in graph.get(&node).unwrap_or(&HashSet::new()) {
-        if !visited.contains(&neighbor) {
-            dfs(graph, neighbor, visited, stack);
+fn dfs(graph: &HashMap<u32, HashSet<u32>>, start: u32, visited: &mut HashSet<u32>, stack: &mut Vec<u32>) {
+    let mut temp_stack = vec![start];
+
+    while let Some(node) = temp_stack.pop() {
+        if visited.insert(node) {
+            temp_stack.extend(graph.get(&node).unwrap_or(&HashSet::new()).iter().cloned());
+            stack.push(node);
         }
     }
-    stack.push(node);
 }
 
 fn transpose(graph: &HashMap<u32, HashSet<u32>>) -> HashMap<u32, HashSet<u32>> {
