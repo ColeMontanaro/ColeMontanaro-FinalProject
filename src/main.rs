@@ -11,9 +11,9 @@ use crate::connected_components::connected_components;
 use crate::centrality::degree_centrality;
 
 fn main() {
-    let path = "data/com-amazon.ungraph.txt";
+    let path = "data/com-amazon.ungraph.txt";  // Path to the graph data file
 
-    let graph = load_graph(path);
+    let graph = load_graph(path);  // Load the graph
     println!("Loaded graph with {} nodes", graph.len());
 
     // Find connected components (not SCCs, since the graph is undirected)
@@ -28,7 +28,7 @@ fn main() {
     // Degree centrality
     let centrality = degree_centrality(&graph);
     println!("Top 5 nodes by degree:");
-    for (node, degree) in centrality.iter().take(5) {
+    for (node, degree) in centrality.iter().take(5) {  // Display top 5 nodes by degree
         println!("Node {}: degree {}", node, degree);
     }
 }

@@ -18,16 +18,16 @@ pub type Graph = HashMap<u32, HashSet<u32>>;
 /// * A graph as a HashMap from node ID to a set of neighbor node IDs.
 ///
 /// # Logic:
-/// Reads file line-by-line, ignores comment lines, splits node pairs,
+/// Reads file line-by-line, ignores comment lines (starting with '#'), splits node pairs,
 /// and inserts edges bidirectionally to represent an undirected graph.
 pub fn load_graph(path: &str) -> Graph {
     let file = File::open(path).expect("File not found");
     let reader = BufReader::new(file);
     let mut graph: Graph = HashMap::new();
 
-    for line in reader.lines().flatten() {
-        if line.starts_with('#') {
-            continue; // Skip metadata/comment lines
+    for line in reader.lines().flatten() {  // Read each line of the file
+        if line.starts_with('#') {  // Skip comment lines
+            continue;
         }
 
         // Parse integers from line
@@ -36,7 +36,7 @@ pub fn load_graph(path: &str) -> Graph {
             .filter_map(|s| s.parse::<u32>().ok())
             .collect();
 
-        if parts.len() == 2 {
+        if parts.len() == 2 {  // Ensure each line represents an edge with two nodes
             let (u, v) = (parts[0], parts[1]);
 
             // Insert edge in both directions for undirected graph
