@@ -5,13 +5,13 @@ use std::collections::{HashMap, HashSet};
 
 /// Finds all connected components in an undirected graph.
 
-/// # Input:
-/// * `graph` - A reference to a graph represented as an adjacency list (HashMap where keys are nodes and values are sets of neighbors).
+/// Input:
+/// `graph` - A reference to a graph represented as an adjacency list (HashMap where keys are nodes and values are sets of neighbors).
 
-/// # Output:
-/// * A vector of connected components, where each component is a vector of node IDs.
+/// Output:
+/// A vector of connected components, where each component is a vector of node IDs.
 
-/// # Logic:
+/// Logic:
 /// Iteratively performs Depth-First Search (DFS) starting from each unvisited node. Nodes are grouped into components based on connectivity.
 pub fn connected_components(graph: &HashMap<u32, HashSet<u32>>) -> Vec<Vec<u32>> {
     let mut visited = HashSet::new();  // Set to track visited nodes
