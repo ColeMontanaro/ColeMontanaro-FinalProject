@@ -56,12 +56,11 @@ Analyze the Amazon Product Co‑Purchasing Network to uncover key products (hubs
 ---
 
 ## D. Tests
-Run the full suite first:
 
 ~~~bash
 cargo test
 ~~~
-
+Output:
 ~~~text
 running 4 tests
 test tests::test_closeness_line ... ok
@@ -85,14 +84,35 @@ Build and run the program:
 ~~~bash
 cargo run --release
 ~~~
-
+Output:
 ~~~text
 Loaded graph with 334863 nodes
-Found 1 connected component
-Top‑degree nodes: 548091(549) 458358(324) 222074(257) 199628(230) 515301(228)
-Average clustering coefficient: 0.3967 (node 548519 = 1.0)
-Top closeness (of 50): 537519 0.1256 ···
-Top betweenness (of 50): 222074 7.18e5 ···
+Found 1 connected components
+Largest component size: 334863
+
+Top 5 nodes by degree:
+Node 548091: degree 549
+Node 458358: degree 324
+Node 222074: degree 257
+Node 199628: degree 230
+Node 515301: degree 228
+
+Average clustering coefficient: 0.3967
+Node 548519 has highest local clustering: 1.0000
+
+Closeness centrality (top 50):
+Node 537519: 0.125640
+Node 199628: 0.124667
+Node 98756: 0.124555
+Node 222074: 0.124489
+Node 35512: 0.124262
+
+Betweenness centrality (top 50):
+Node 222074: 718060.425464
+Node 284825: 550627.296016
+Node 89000: 522266.455572
+Node 502784: 514092.913860
+Node 154855: 394169.592840
 ~~~
 
 **Interpretation (Amazon takeaways)**  
@@ -120,7 +140,7 @@ Top betweenness (of 50): 222074 7.18e5 ···
    ~~~
    - *Command‑line arguments:* none.  
    - *User interaction:* none—program prints results to stdout.  
-   - *Expected runtime:* ~15 seconds on a modern 8‑core machine.
+   - *Expected runtime:* ~20 seconds (depends on computer)
 
 ---
 
