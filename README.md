@@ -1,7 +1,7 @@
-####ColeMontanaro-FinalProject
+#### ColeMontanaro-FinalProject
 
-###A. Project Overview
-##Goal: What question are you answering?
+### A. Project Overview
+## Goal: What question are you answering?
 
 Identify important relationships and key points in the Amazon Product Co-Purchasing Network.
 
@@ -15,7 +15,7 @@ Targeted Marketing: Identifying influential products aids in targeting advertise
 
 Inventory Management: Central products may help predict demand, improving stock management and reducing overstock/understock issues.
 
-##Dataset: Source, size
+## Dataset: Source, size
 
 Dataset: Amazon Product Co-Purchasing Network.
 
@@ -27,18 +27,18 @@ com-amazon.all.dedup.cmty.txt: Precomputed community assignments (not directly u
 
 Source: https://snap.stanford.edu/data/com-Amazon.html
 
-###B. Data Processing
+### B. Data Processing
 
-##How I loaded it into Rust:
+## How I loaded it into Rust:
 
 Used a HashMap<u32, HashSet<u32>> to represent the graph adjacency list, and read the edge list from com-amazon.ungraph.txt, adding edges bidirectionally.
 
-##Any cleaning or transformations applied:
+## Any cleaning or transformations applied:
 
 Skipped comment lines (lines starting with #). Ignored malformed lines. Added edges in both directions to account for the undirected nature of the graph.
 
-###C. Code Structure
-##Modules:
+### C. Code Structure
+## Modules:
 1. graph.rs: Loads the graph from the edge list file.
 2. connected_components.rs: Contains logic to find connected components using DFS.
 3. centrality.rs: Computes degree centrality for all nodes.
@@ -48,7 +48,7 @@ Purpose of each and rationale for organization:
 
 Modular approach to separate responsibilities: graph loading, connected component analysis, centrality computation, and testing.
 
-##Key Functions & Types:
+## Key Functions & Types:
 
 graph.rs
 
@@ -82,7 +82,7 @@ Outputs: List of nodes and their degree (Vec<(u32, usize)>).
 
 Logic: Counts the neighbors for each node and sorts nodes by degree.
 
-##Main Workflow
+## Main Workflow
 
 Graph Loading: load_graph loads the graph.
 
@@ -90,9 +90,9 @@ Connected Components: connected_components groups nodes into connected component
 
 Degree Centrality: degree_centrality calculates the degree for each node and returns the top 5 nodes.
 
-###D. Tests
+### D. Tests
 
-##Cargo test output:
+## Cargo test output:
 
 running 4 tests
 test tests::tests::test_all_connected_nodes ... ok
@@ -101,15 +101,15 @@ test tests::tests::test_single_node ... ok
 test tests::tests::test_two_disconnected_nodes ... ok
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
-##Test Cases
+## Test Cases
 1. test_connected_components: Verifies DFS correctly identifies disconnected components.
 2. test_single_node: Ensures the function handles a single-node graph correctly.
 3. test_two_disconnected_nodes: Verifies the function identifies two isolated nodes as separate components.
 4. test_all_connected_nodes: Verifies the function identifies all nodes as connected in a single component.
 
-###E. Results
+### E. Results
 
-##Program Outputs:
+## Program Outputs:
 
 Loaded graph with 334863 nodes
 Found 1 connected components
@@ -121,13 +121,13 @@ Node 222074: degree 257
 Node 199628: degree 230
 Node 515301: degree 228
 
-##Interpretation in Project Context:
+## Interpretation in Project Context:
 
 One large connected component suggests all 334,863 nodes form a single connected network of co-purchased products.
 The top 5 nodes by degree represent highly influential products in the network, useful for improving recommendations, marketing, and inventory management.
 
-###F. Usage Instructions:
-##How to Build and Run
+### F. Usage Instructions:
+## How to Build and Run
 
 Clone the repository:
 git clone https://github.com/ColeMontanaro/ColeMontanaro-FinalProject
@@ -138,13 +138,13 @@ cd ColeMontanaro-FinalProject/
 Run the program:
 cargo run
 
-##Command-line Arguments: No user input required during runtime.
+## Command-line Arguments: No user input required during runtime.
 
-##Expected Runtime:
+## Expected Runtime:
 cargo test runtime: ~0.00s
 cargo run runtime: ~4.00s
 
-###G. Citations
+### G. Citations
 N/A
 
 
