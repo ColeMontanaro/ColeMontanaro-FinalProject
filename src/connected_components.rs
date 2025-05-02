@@ -1,37 +1,45 @@
 // Module: connected_components
-// Purpose: Finds all connected components in an undirected graph using DFS.
+// Purpose: Finds all connected components in an undirected graph.
 
 use std::collections::{HashMap, HashSet};
 
-/// Finds all connected components in an undirected graph.
-
+/// Identifies connected components in the graph.
+///
 /// Input:
-/// `graph` - A reference to a graph represented as an adjacency list (HashMap where keys are nodes and values are sets of neighbors).
-
+/// - `graph`: adjacency list node → neighbor set
+///
 /// Output:
-/// A vector of connected components, where each component is a vector of node IDs.
-
+/// - `Vec<Vec<u32>>`: each inner Vec is one component’s nodes
+///
 /// Logic:
-/// Iteratively performs Depth-First Search (DFS) starting from each unvisited node. Nodes are grouped into components based on connectivity.
+/// - DFS from each unvisited node, collecting its component.
 pub fn connected_components(graph: &HashMap<u32, HashSet<u32>>) -> Vec<Vec<u32>> {
-    let mut visited = HashSet::new();  // Set to track visited nodes
-    let mut components: Vec<Vec<u32>> = Vec::new();  // Vector to store the components
+    let mut visited: HashSet<u32> = HashSet::new();
+    let mut components: Vec<Vec<u32>> = Vec::new();
 
-    for &node in graph.keys() {  // Iterate through each node
-        if !visited.contains(&node) {  // If the node is unvisited, start DFS
+    for &node in graph.keys() {
+        if !visited.contains(&node) {
+            let mut stack = vec![node];
+            let mut comp: Vec<u32> = Vec::new();
 
-            let mut component = Vec::new();  // To store nodes in the current component
-            let mut stack = vec![node];  // DFS stack to explore neighbors
-
-            while let Some(current) = stack.pop() {  // Process nodes in the stack
-                if visited.insert(current) {  // Mark node as visited
-                    component.push(current);  // Add it to the current component
-                    // Add unvisited neighbors to the stack for further exploration
-                    stack.extend(graph.get(&current).unwrap_or(&HashSet::new()).iter().cloned());
+            while let Some(v) = stack.pop() {
+                if visited.insert(v) {
+                    comp.push(v);
+                    // Push only unvisited neighbors
+                    stack.extend(
+                        graph
+                            .get(&v)
+                            .unwrap_or(&HashSet::new())
+                            .iter()
+                            .filter(|nbr| !visited.contains(nbr))
+                            .cloned(),
+                    );
                 }
             }
-            components.push(component);  // Store the completed component
+
+            components.push(comp);
         }
     }
+
     components
 }

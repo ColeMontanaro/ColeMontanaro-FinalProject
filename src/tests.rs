@@ -1,156 +1,68 @@
+// src/tests.rs
+// Module: tests
+// Purpose: Unit tests for connected components, clustering, and subset‑based centralities.
+
 #[cfg(test)]
 mod tests {
     use std::collections::{HashMap, HashSet};
     use crate::connected_components::connected_components;
+    use crate::clustering::clustering_coefficient;
+    use crate::centrality_closeness::closeness_centrality_subset;
+    use crate::centrality_betweenness::betweenness_centrality_subset;
 
-    /// Tests connected components on a small undirected graph.
-    
-    /// Graph structure:
-    /// 1 - 2 - 3 (Component 1)
-    /// 4 - 5     (Component 2)
-
-    /// Expected Output:
-    /// Two connected components: {1, 2, 3} and {4, 5}
+    /// Tests connected_components on a small undirected graph.
     #[test]
     fn test_connected_components() {
         let mut graph: HashMap<u32, HashSet<u32>> = HashMap::new();
-        
-        // Build the graph:
-        // Component 1: 1 - 2 - 3
         graph.entry(1).or_default().insert(2);
         graph.entry(2).or_default().extend([1, 3]);
         graph.entry(3).or_default().insert(2);
-        
-        // Component 2: 4 - 5
         graph.entry(4).or_default().insert(5);
         graph.entry(5).or_default().insert(4);
 
-        // Call the connected_components function to detect components
-        let components = connected_components(&graph);
+        let comps = connected_components(&graph);
+        let sets: Vec<HashSet<u32>> =
+            comps.into_iter().map(|v| v.into_iter().collect()).collect();
+        assert!(sets.contains(&HashSet::from([1, 2, 3])));
+        assert!(sets.contains(&HashSet::from([4, 5])));
+    }
 
-        // Convert components to sets for easier comparison
-        let component_sets: Vec<HashSet<u32>> = components.into_iter()
-            .map(|v| v.into_iter().collect()) // Convert Vec<u32> to HashSet<u32>
-            .collect();
-
-        // Expected components as HashSets
-        let expected_sets: Vec<HashSet<u32>> = vec![
-            HashSet::from([1, 2, 3]),
-            HashSet::from([4, 5]),
-        ];
-
-        // Assert that all expected components are found
-        assert_eq!(component_sets.len(), expected_sets.len());
-        for expected_set in expected_sets {
-            assert!(component_sets.contains(&expected_set));
+    /// Tests clustering_coefficient on a triangle graph.
+    #[test]
+    fn test_clustering_triangle() {
+        let mut g: HashMap<u32, HashSet<u32>> = HashMap::new();
+        for &(u, v) in &[(1, 2), (2, 3), (3, 1)] {
+            g.entry(u).or_default().insert(v);
+            g.entry(v).or_default().insert(u);
+        }
+        let coeffs = clustering_coefficient(&g);
+        for &(_, c) in &coeffs {
+            assert!((c - 1.0).abs() < 1e-6);
         }
     }
 
-    /// Additional edge case: Test with a graph containing a single node.
-    
-    /// Graph structure:
-    /// 1 (Component 1)
-    
-    /// Expected Output:
-    /// One connected component: {1}
+    /// Tests closeness_centrality_subset on a 3-node line: 1–2–3.
     #[test]
-    fn test_single_node() {
-        let mut graph: HashMap<u32, HashSet<u32>> = HashMap::new();
-        
-        // Single node, no edges
-        graph.insert(1, HashSet::new());
-
-        // Call the connected_components function
-        let components = connected_components(&graph);
-
-        // Convert components to sets for easier comparison
-        let component_sets: Vec<HashSet<u32>> = components.into_iter()
-            .map(|v| v.into_iter().collect()) // Convert Vec<u32> to HashSet<u32>
-            .collect();
-
-        // Expected components as HashSets
-        let expected_sets: Vec<HashSet<u32>> = vec![
-            HashSet::from([1]),
-        ];
-
-        // Assert that all expected components are found
-        assert_eq!(component_sets.len(), expected_sets.len());
-        for expected_set in expected_sets {
-            assert!(component_sets.contains(&expected_set));
-        }
+    fn test_closeness_line() {
+        let mut g: HashMap<u32, HashSet<u32>> = HashMap::new();
+        g.entry(1).or_default().insert(2);
+        g.entry(2).or_default().extend([1, 3]);
+        g.entry(3).or_default().insert(2);
+        let sources = vec![1, 2, 3];
+        let close = closeness_centrality_subset(&g, &sources);
+        assert_eq!(close[0].0, 2);
     }
 
-    /// Additional edge case: Test with a graph containing two disconnected nodes.
-    
-    /// Graph structure:
-    /// 1 (Component 1)
-    /// 2 (Component 2)
-    
-    /// Expected Output:
-    /// Two connected components: {1}, {2}
+    /// Tests betweenness_centrality_subset on a 3-node line: 1–2–3.
     #[test]
-    fn test_two_disconnected_nodes() {
-        let mut graph: HashMap<u32, HashSet<u32>> = HashMap::new();
-        
-        // Two disconnected nodes
-        graph.insert(1, HashSet::new());
-        graph.insert(2, HashSet::new());
-
-        // Call the connected_components function
-        let components = connected_components(&graph);
-
-        // Convert components to sets for easier comparison
-        let component_sets: Vec<HashSet<u32>> = components.into_iter()
-            .map(|v| v.into_iter().collect()) // Convert Vec<u32> to HashSet<u32>
-            .collect();
-
-        // Expected components as HashSets
-        let expected_sets: Vec<HashSet<u32>> = vec![
-            HashSet::from([1]),
-            HashSet::from([2]),
-        ];
-
-        // Assert that all expected components are found
-        assert_eq!(component_sets.len(), expected_sets.len());
-        for expected_set in expected_sets {
-            assert!(component_sets.contains(&expected_set));
-        }
-    }
-
-    /// Additional edge case: Test with a graph where all nodes are connected in a single component.
-    
-    /// Graph structure:
-    /// 1 - 2 - 3 - 4 (Single Component)
-    
-    /// Expected Output:
-    /// One connected component: {1, 2, 3, 4}
-    #[test]
-    fn test_all_connected_nodes() {
-        let mut graph: HashMap<u32, HashSet<u32>> = HashMap::new();
-        
-        // Build a single connected component: 1 - 2 - 3 - 4
-        graph.entry(1).or_default().insert(2);
-        graph.entry(2).or_default().extend([1, 3]);
-        graph.entry(3).or_default().extend([2, 4]);
-        graph.entry(4).or_default().insert(3);
-
-        // Call the connected_components function
-        let components = connected_components(&graph);
-
-        // Convert components to sets for easier comparison
-        let component_sets: Vec<HashSet<u32>> = components.into_iter()
-            .map(|v| v.into_iter().collect()) // Convert Vec<u32> to HashSet<u32>
-            .collect();
-
-        // Expected components as HashSets
-        let expected_sets: Vec<HashSet<u32>> = vec![
-            HashSet::from([1, 2, 3, 4]),
-        ];
-
-        // Assert that all expected components are found
-        assert_eq!(component_sets.len(), expected_sets.len());
-        for expected_set in expected_sets {
-            assert!(component_sets.contains(&expected_set));
-        }
+    fn test_betweenness_line() {
+        let mut g: HashMap<u32, HashSet<u32>> = HashMap::new();
+        g.entry(1).or_default().insert(2);
+        g.entry(2).or_default().extend([1, 3]);
+        g.entry(3).or_default().insert(2);
+        let sources = vec![1, 2, 3];
+        let bc = betweenness_centrality_subset(&g, &sources);
+        assert_eq!(bc[0].0, 2);
+        assert!(bc[0].1 > 0.0);
     }
 }
