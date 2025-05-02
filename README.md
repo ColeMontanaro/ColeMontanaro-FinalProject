@@ -1,4 +1,4 @@
-# Final Project Write‑Up
+# Cole Montanaro Final Project Writeup
 
 ## A. Project Overview
 
@@ -9,7 +9,7 @@ Analyze the Amazon Product Co‑Purchasing Network to identify key products and 
 - **Source:** SNAP “Amazon product co‑purchase” graph  
 - **Files:**  
   - `com‑amazon.ungraph.txt`: 334,863 nodes, 925,872 undirected edges  
-- **Link:** https://snap.stanford.edu/data/com-Amazon.html  
+- **Link:** <https://snap.stanford.edu/data/com-Amazon.html>
 
 ---
 
@@ -30,163 +30,103 @@ Analyze the Amazon Product Co‑Purchasing Network to identify key products and 
 
 ### Modules & Rationale
 
-1. **`graph.rs`**  
-   - **Purpose:** Load edge list into adjacency list (`Graph`).  
-   - **Rationale:** Central source of graph data for all analyses.
-
-2. **`connected_components.rs`**  
-   - **Purpose:** DFS‑based detection of connected components.  
-   - **Rationale:** Identify isolated subgraphs (none found in this dataset).
-
-3. **`centrality.rs`**  
-   - **Purpose:** Compute degree centrality (neighbor count).  
-   - **Rationale:** Fast identification of “hub” products.
-
-4. **`clustering.rs`**  
-   - **Purpose:** Compute local and average clustering coefficients.  
-   - **Rationale:** Measure tightness of co‑purchase communities.
-
-5. **`centrality_closeness.rs`**  
-   - **Purpose:** Compute **closeness** centrality for a **subset** of source nodes.  
-   - **Rationale:** Limit expensive BFS runs to top‑degree products.
-
-6. **`centrality_betweenness.rs`**  
-   - **Purpose:** Compute **betweenness** centrality for a **subset** of sources using Brandes’ algorithm.  
-   - **Rationale:** Identify bridge products without full‑graph cost.
-
-7. **`main.rs`**  
-   - **Purpose:** Orchestrate loading and run all analyses.  
-   - **Rationale:** Single executable entry point.
-
-8. **`tests.rs`**  
-   - **Purpose:** Unit tests for each delivered function.  
-   - **Rationale:** Ensure correctness before submission.
+| Module | Purpose | Rationale |
+| ------ | ------- | --------- |
+| `graph.rs` | Load edge list into adjacency list (`Graph`). | Central source for all analyses. |
+| `connected_components.rs` | DFS‑based detection of connected components. | Identify isolated subgraphs. |
+| `centrality.rs` | Compute degree centrality. | Fast “hub” detection. |
+| `clustering.rs` | Compute local & average clustering coefficients. | Measure community tightness. |
+| `centrality_closeness.rs` | Closeness centrality for a subset. | Limit expensive BFS runs. |
+| `centrality_betweenness.rs` | Betweenness centrality for a subset via Brandes. | Find bridge products cheaply. |
+| `main.rs` | Orchestrate loading and run analyses. | Single entry point. |
+| `tests.rs` | Unit tests for each function. | Ensure correctness. |
 
 ### Key Functions & Types
 
-- **`load_graph(path: &str) -> Graph`**  
-  - **Inputs:** file path  
-  - **Outputs:** `HashMap<u32, HashSet<u32>>`  
-  - **Logic:** Stream lines, skip comments, parse edges bidirectionally.
-
-- **`connected_components(graph: &Graph) -> Vec<Vec<u32>>`**  
-  - **Inputs:** adjacency list  
-  - **Outputs:** list of node‑lists for each component  
-  - **Logic:** DFS from each unvisited node, collect its component.
-
-- **`degree_centrality(graph: &Graph) -> Vec<(u32, usize)>`**  
-  - **Inputs:** adjacency list  
-  - **Outputs:** sorted `(node, degree)` descending  
-  - **Logic:** Count neighbors for each node, sort.
-
-- **`clustering_coefficient(graph: &Graph) -> Vec<(u32, f64)>`**  
-  - **Inputs:** adjacency list  
-  - **Outputs:** local clustering per node  
-  - **Logic:** For each node, count existing edges among neighbors vs. possible.
-
-- **`average_clustering(graph: &Graph) -> f64`**  
-  - **Inputs:** adjacency list  
-  - **Outputs:** global average of local coefficients  
-  - **Logic:** Sum local values / node count.
-
-- **`closeness_centrality_subset(graph: &Graph, sources: &[u32]) -> Vec<(u32, f64)>`**  
-  - **Inputs:** adjacency list, chosen sources  
-  - **Outputs:** sorted `(node, closeness)` for sources  
-  - **Logic:** For each source, BFS to measure reachable distances, compute `(reachable‑1)/sum`.
-
-- **`betweenness_centrality_subset(graph: &Graph, sources: &[u32]) -> Vec<(u32, f64)>`**  
-  - **Inputs:** adjacency list, chosen sources  
-  - **Outputs:** sorted `(node, betweenness)` for all nodes  
-  - **Logic:** For each source, run `bfs_paths` then `accumulate` per Brandes, sum contributions.
+| Function | Signature | Description |
+| -------- | --------- | ----------- |
+| `load_graph` | `fn load_graph(path: &str) -> Graph` | Streams file, builds adjacency list. |
+| `connected_components` | `fn connected_components(graph: &Graph) -> Vec<Vec<u32>>` | DFS, returns components. |
+| `degree_centrality` | `fn degree_centrality(graph: &Graph) -> Vec<(u32, usize)>` | Counts neighbors, sorts. |
+| `clustering_coefficient` | `fn clustering_coefficient(graph: &Graph) -> Vec<(u32, f64)>` | Local clustering per node. |
+| `average_clustering` | `fn average_clustering(graph: &Graph) -> f64` | Global average clustering. |
+| `closeness_centrality_subset` | `fn closeness_centrality_subset(graph: &Graph, src: &[u32]) -> Vec<(u32,f64)>` | BFS‑based closeness. |
+| `betweenness_centrality_subset` | `fn betweenness_centrality_subset(graph: &Graph, src: &[u32]) -> Vec<(u32,f64)>` | Brandes accumulation. |
 
 ### Main Workflow
 
-1. **Load** graph.  
-2. **Find** connected components.  
-3. **Compute** degree centrality; select top 50 as `sources`.  
-4. **Compute** clustering coefficients on full graph.  
-5. **Compute** closeness & betweenness only for `sources`.  
-6. **Print** top 5 of each metric.
+1. **Load** graph  
+2. **Find** connected components  
+3. **Compute** degree centrality; select top 50 as `sources`  
+4. **Compute** clustering coefficients  
+5. **Compute** closeness & betweenness for `sources`  
+6. **Print** top 5 of each metric  
 
 ---
 
 ## D. Tests
 
-**Cargo test output:**
-```text
+~~~text
 running 4 tests
 test tests::tests::test_closeness_line ... ok
 test tests::tests::test_betweenness_line ... ok
 test tests::tests::test_clustering_triangle ... ok
 test tests::tests::test_connected_components ... ok
 
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+result: ok. 4 passed; 0 failed; finished in 0.00s
+~~~
 
-test_connected_components: verifies DFS groups {1,2,3} and {4,5} correctly.
+- **test_connected_components**: verifies DFS groups `{1,2,3}` & `{4,5}` correctly.  
+- **test_clustering_triangle**: 3‑node clique ⇒ coefficient 1.0.  
+- **test_closeness_line**: on line 1–2–3, node 2 highest closeness.  
+- **test_betweenness_line**: on line 1–2–3, node 2 highest betweenness.  
 
-test_clustering_triangle: checks that a 3‑node clique yields coefficient 1.0 for all.
-
-test_closeness_line: on line 1–2–3, ensures node 2 has highest closeness.
-
-test_betweenness_line: on line 1–2–3, ensures node 2 has highest betweenness.
+---
 
 ## E. Results
 
+~~~text
 cargo run --release output:
 
 Loaded graph with 334863 nodes
-Found 1 connected components
+Found 1 connected component
 Largest component size: 334863
 
-Top 5 nodes by degree:
-Node 548091: degree 549
-Node 458358: degree 324
-Node 222074: degree 257
-Node 199628: degree 230
-Node 515301: degree 228
+Top 5 nodes by degree
+548091: 549 | 458358: 324 | 222074: 257 | 199628: 230 | 515301: 228
 
 Average clustering coefficient: 0.3967
-Node 548519 has highest local clustering: 1.0000
+Highest local clustering: node 548519 → 1.0
 
-Closeness centrality (top 50):
-Node 537519: 0.125640
-Node 199628: 0.124667
-Node 98756:  0.124555
-Node 222074: 0.124489
-Node 35512:  0.124262
+Closeness centrality (top 50)
+537519:0.125640 | 199628:0.124667 | 98756:0.124555 | 222074:0.124489 | 35512:0.124262
 
-Betweenness centrality (top 50):
-Node 222074: 718060.425464
-Node 284825: 550627.296016
-Node 89000:  522266.455572
-Node 502784: 514092.913860
-Node 154855: 394169.592840
+Betweenness centrality (top 50)
+222074:718060.43 | 284825:550627.30 | 89000:522266.46 | 502784:514092.91 | 154855:394169.59
+~~~
 
-Interpretation:
+**Interpretation**
 
-Single giant component → fully connected co‑purchase network.
+- **Single giant component** → fully connected co‑purchase network  
+- **Degree hubs** (e.g., 548091) are top “also‑bought” items  
+- **Clustering ≈ 0.4** → moderately cohesive communities; node 548519 is a perfect clique  
+- **Closeness ≈ 0.125** → top 50 products ~8 steps from any other  
+- **High betweenness** (e.g., 222074) → bridges linking clusters  
 
-Degree hubs (e.g. 548091) are top “also‑bought” items.
-
-Clustering ≈ 0.4 → moderately cohesive product communities; perfect‑clique node (548519) ideal for bundles.
-
-Closeness ~0.125 → these top 50 products are ~8 steps from any other, guiding deep catalog exploration.
-
-High betweenness (e.g. 222074) → bridge items linking clusters, critical for cross‑category promotions.
+---
 
 ## F. Usage Instructions
 
-1. Clone & Enter Repo
-
+~~~bash
+# clone & enter
 git clone https://github.com/YourUsername/ColeMontanaro-FinalProject
-
 cd ColeMontanaro-FinalProject
 
-2. Build & Run (release)
+# build & run
+cargo run --release   # ~15 s on an 8‑core machine
+~~~
 
-cargo run --release
-
-Expected runtime: ~15 s on a modern 8‑core machine.
+---
 
 ## G. Citations
 
