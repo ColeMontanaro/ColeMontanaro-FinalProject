@@ -1,24 +1,34 @@
+// Module: main
+// Purpose: Coordinates program flow—loading graph, finding components, computing degree centrality.
+
 mod graph;
+mod connected_components;
 mod centrality;
-mod scc;
-mod community;
-mod tests; // Add this
+mod tests;
+
+use crate::graph::load_graph;
+use crate::connected_components::connected_components;
+use crate::centrality::degree_centrality;
 
 fn main() {
-    let graph = graph::load_graph("data/com-amazon.ungraph.txt");
+    let path = "data/com-amazon.ungraph.txt";
+
+    let graph = load_graph(path);
     println!("Loaded graph with {} nodes", graph.len());
 
-    // SCC
-    let sccs = scc::kosaraju_scc(&graph);
-    println!("Found {} strongly connected components", sccs.len());
+    // Find connected components (not SCCs, since the graph is undirected)
+    let components = connected_components(&graph);
+    println!("Found {} connected components", components.len());
 
-    let largest = sccs.iter().max_by_key(|c| c.len()).unwrap();
-    println!("Largest SCC size: {}", largest.len());
+    // Largest component size
+    if let Some(largest) = components.iter().max_by_key(|c| c.len()) {
+        println!("Largest connected component size: {}", largest.len());
+    }
 
-    // Centrality
-    let top_degrees = centrality::degree_centrality(&graph);
+    // Degree centrality
+    let centrality = degree_centrality(&graph);
     println!("Top 5 nodes by degree:");
-    for (node, degree) in top_degrees.iter().take(5) {
+    for (node, degree) in centrality.iter().take(5) {
         println!("Node {}: degree {}", node, degree);
     }
 }
