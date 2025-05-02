@@ -1,145 +1,105 @@
 # Cole Montanaro Final Project Writeup
 
 ## A. Project Overview
+**Goal**  
+Analyze the Amazon Product Co‑Purchasing Network to find key products and communities (connected components, degree/closeness/betweenness centralities, clustering).
 
-**Goal:**  
-Analyze the Amazon Product Co‑Purchasing Network to identify key products and communities by computing connected components, degree centrality, clustering coefficients, and subset‑based closeness and betweenness centralities. This helps Amazon improve recommendations, bundling, and cross‑category promotions.
-
-**Dataset:**  
+**Dataset**  
 - **Source:** SNAP “Amazon product co‑purchase” graph  
-- **Files:**  
-  - `com‑amazon.ungraph.txt`: 334,863 nodes, 925,872 undirected edges  
+- **Size:** 334 ,863 nodes · 925 ,872 undirected edges  
 - **Link:** <https://snap.stanford.edu/data/com-Amazon.html>
 
 ---
 
 ## B. Data Processing
-
-1. **Loading**  
-   - Used Rust’s `BufReader` to stream `com‑amazon.ungraph.txt`.  
-   - Parsed each whitespace‑separated pair `(u v)`, skipping lines that begin with `#`.
-
-2. **Cleaning & Transformations**  
-   - Ignored comment lines (`# …`).  
-   - Parsed only valid two‑integer lines.  
-   - Built a bidirectional adjacency list: `HashMap<u32, HashSet<u32>>`.
+- **Loading** – Streamed `com‑amazon.ungraph.txt` with `BufReader`; parsed `(u v)` pairs, skipping `#` comments.  
+- **Cleaning** – Accepted only two‑integer lines.  
+- **Transformation** – Built bidirectional adjacency list → `HashMap<u32, HashSet<u32>>`.
 
 ---
 
 ## C. Code Structure
-
-### Modules & Rationale
-
+### Modules (Purpose → Rationale)
 | Module | Purpose | Rationale |
 | ------ | ------- | --------- |
-| `graph.rs` | Load edge list into adjacency list (`Graph`). | Central source for all analyses. |
-| `connected_components.rs` | DFS‑based detection of connected components. | Identify isolated subgraphs. |
-| `centrality.rs` | Compute degree centrality. | Fast hub detection. |
-| `clustering.rs` | Compute local & average clustering coefficients. | Measure community tightness. |
-| `centrality_closeness.rs` | Closeness centrality for a subset. | Limit expensive BFS. |
-| `centrality_betweenness.rs` | Betweenness centrality (subset, Brandes). | Find bridge products cheaply. |
-| `main.rs` | Orchestrate loading and run analyses. | Single entry point. |
-| `tests.rs` | Unit tests for each function. | Ensure correctness. |
+| `graph.rs` | Load edge list into `Graph`. | Single authoritative loader. |
+| `connected_components.rs` | DFS component detection. | Identify isolated subgraphs. |
+| `centrality.rs` | Degree centrality. | Fast hub detection. |
+| `clustering.rs` | Local & average clustering. | Community tightness. |
+| `centrality_closeness.rs` | Closeness (subset). | Cut BFS cost. |
+| `centrality_betweenness.rs` | Betweenness (subset, Brandes). | Cheap bridge detection. |
+| `main.rs` | CLI entry; orchestrates analysis. | Keep interface simple. |
+| `tests.rs` | Unit tests. | Regression safety. |
 
-### Key Functions & Types
-
-| Function | Signature | Description |
-| -------- | --------- | ----------- |
-| `load_graph` | `fn load_graph(path:&str)->Graph` | Streams file, skips comments, builds adjacency list. |
-| `connected_components` | `fn connected_components(graph:&Graph)->Vec<Vec<u32>>` | DFS, returns components. |
-| `degree_centrality` | `fn degree_centrality(graph:&Graph)->Vec<(u32,usize)>` | Counts neighbors, sorts descending. |
-| `clustering_coefficient` | `fn clustering_coefficient(graph:&Graph)->Vec<(u32,f64)>` | Local clustering per node. |
-| `average_clustering` | `fn average_clustering(graph:&Graph)->f64` | Global average clustering. |
-| `closeness_centrality_subset` | `fn closeness_centrality_subset(graph:&Graph,src:&[u32])->Vec<(u32,f64)>` | BFS‑based closeness. |
-| `betweenness_centrality_subset` | `fn betweenness_centrality_subset(graph:&Graph,src:&[u32])->Vec<(u32,f64)>` | Brandes accumulation. |
+### Key Functions & Types
+| Item | Purpose | In / Out | Core Logic |
+| ---- | ------- | -------- | ---------- |
+| `type Graph = HashMap<u32, HashSet<u32>>` | Store undirected graph. | — | Symmetric edge inserts for O(1) look‑ups. |
+| `load_graph` | Build `Graph` from file. | `&str` → `Graph` | Stream lines → parse → insert `u↔v`. |
+| `connected_components` | List components. | `&Graph` → `Vec<Vec<u32>>` | DFS w/ visited set. |
+| `degree_centrality` | Rank by degree. | `&Graph` → `Vec<(u32,usize)>` | Count neighbors, sort. |
+| `clustering_coefficient` | Local clustering. | `&Graph` → `Vec<(u32,f64)>` | Count neighbor edges / `k·(k‑1)/2`. |
+| `average_clustering` | Mean clustering. | `&Graph` → `f64` | Average of above. |
+| `closeness_centrality_subset` | Closeness (sources). | `&Graph`, `[u32]` → `Vec<(u32,f64)>` | BFS → `(reachable‑1)/Σdist`. |
+| `betweenness_centrality_subset` | Betweenness (sources). | `&Graph`, `[u32]` → `Vec<(u32,f64)>` | Brandes forward/backward on each source. |
 
 ### Main Workflow
-
-1. **Load** graph.  
-2. **Find** connected components.  
-3. **Compute** degree centrality; select top 50 as `sources`.  
-4. **Compute** clustering coefficients.  
-5. **Compute** closeness & betweenness for `sources`.  
-6. **Print** top 5 of each metric.
+1. `load_graph`  
+2. `connected_components`  
+3. `degree_centrality` → pick top 50 sources  
+4. `clustering_coefficient` & `average_clustering`  
+5. `closeness_centrality_subset` & `betweenness_centrality_subset`  
+6. Print summaries.
 
 ---
 
 ## D. Tests
-
 ~~~text
 running 4 tests
-test tests::tests::test_closeness_line ... ok
-test tests::tests::test_betweenness_line ... ok
-test tests::tests::test_clustering_triangle ... ok
-test tests::tests::test_connected_components ... ok
-
-test result: ok. 4 passed; 0 failed; finished in 0.00s
+test tests::test_closeness_line ... ok
+test tests::test_betweenness_line ... ok
+test tests::test_clustering_triangle ... ok
+test tests::test_connected_components ... ok
+result: ok. 4 passed; 0 failed; finished in 0.00s
 ~~~
-
-- **test_connected_components:** verifies DFS groups `{1,2,3}` and `{4,5}`.  
-- **test_clustering_triangle:** 3‑node clique ⇒ coefficient 1.0.  
-- **test_closeness_line:** on line 1‑2‑3, node 2 highest closeness.  
-- **test_betweenness_line:** on line 1‑2‑3, node 2 highest betweenness.
+- **connected_components** – Two groups `{1,2,3}`/`{4,5}` detected.  
+- **clustering_triangle** – 3‑node clique → coefficient 1.0.  
+- **closeness_line / betweenness_line** – On line graph 1‑2‑3, node 2 highest closeness & betweenness.  
+*Why?* Proves each metric is computed correctly on minimal cases.
 
 ---
 
 ## E. Results
-
 ~~~text
-cargo run --release output:
+cargo run --release
 
 Loaded graph with 334863 nodes
 Found 1 connected component
-Largest component size: 334863
-
-Top 5 nodes by degree:
-548091: 549
-458358: 324
-222074: 257
-199628: 230
-515301: 228
-
-Average clustering coefficient: 0.3967
-Highest local clustering: node 548519 → 1.0000
-
-Closeness centrality (top 50):
-537519: 0.125640
-199628: 0.124667
-98756 : 0.124555
-222074: 0.124489
-35512 : 0.124262
-
-Betweenness centrality (top 50):
-222074: 718060.43
-284825: 550627.30
-89000 : 522266.46
-502784: 514092.91
-154855: 394169.59
+Top‑degree nodes: 548091(549) 458358(324) 222074(257) 199628(230) 515301(228)
+Average clustering coefficient: 0.3967 (node 548519 = 1.0)
+Top closeness: 537519 0.1256 … (50 total)
+Top betweenness: 222074 7.18e5 … (50 total)
 ~~~
-
-**Interpretation**
-
-- **Single giant component** → fully connected co‑purchase network.  
-- **Degree hubs** (e.g., 548091) are top “also‑bought” items.  
-- **Clustering ≈ 0.4** → moderately cohesive communities; node 548519 forms a perfect clique.  
-- **Closeness ≈ 0.125** → top 50 products are ~8 steps from any other.  
-- **High betweenness** (e.g., 222074) → bridges linking clusters.
+**Interpretation**  
+- Single giant component → fully connected ecosystem.  
+- Degree hubs = “also‑bought” anchors.  
+- Clustering ≈ 0.4 → moderate product communities; node 548519 is a tight bundle.  
+- High betweenness (222074) → cross‑category bridge items.
 
 ---
 
 ## F. Usage Instructions
-
 ~~~bash
-# Clone & enter
+# Clone repo
 git clone https://github.com/YourUsername/ColeMontanaro-FinalProject
 cd ColeMontanaro-FinalProject
 
-# Build & run (release)
+# Build & run (release build)
 cargo run --release   # ≈ 15 s on an 8‑core machine
 ~~~
+_No CLI flags; program prints metrics to stdout._
 
 ---
 
 ## G. Citations
-
 N/A
