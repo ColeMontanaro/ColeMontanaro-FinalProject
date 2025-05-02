@@ -95,10 +95,15 @@ Degree Centrality: degree_centrality calculates the degree for each node and ret
 ### Cargo test output:
 
 running 4 tests
+
 test tests::tests::test_all_connected_nodes ... ok
+
 test tests::tests::test_connected_components ... ok
+
 test tests::tests::test_single_node ... ok
+
 test tests::tests::test_two_disconnected_nodes ... ok
+
 test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
 
 ### Test Cases
@@ -112,13 +117,21 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; fini
 ### Program Outputs:
 
 Loaded graph with 334863 nodes
+
 Found 1 connected components
+
 Largest connected component size: 334863
+
 Top 5 nodes by degree:
+
 Node 548091: degree 549
+
 Node 458358: degree 324
+
 Node 222074: degree 257
+
 Node 199628: degree 230
+
 Node 515301: degree 228
 
 ### Interpretation in Project Context:
