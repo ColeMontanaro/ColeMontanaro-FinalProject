@@ -143,15 +143,23 @@ F. Usage Instructions
     1. Clone the repository:
     git clone <https://github.com/ColeMontanaro/ColeMontanaro-FinalProject>
 
-    2. Install dependencies:
-    This project uses Cargo to manage dependencies, so ensure Rust is installed and run:
-    cargo build
+    2. Change to the directory:
+    cd ColeMontanaro-FinalProject/
 
     3. Run the program:
     To run the program and see the analysis results:
     cargo run
 
-    4. The output will display information about the graph, connected components, and degree centrality.
+    4. The output will display the following information:
+    Loaded graph with 334863 nodes
+    Found 1 connected components
+    Largest connected component size: 334863
+    Top 5 nodes by degree:
+    Node 548091: degree 549
+    Node 458358: degree 324
+    Node 222074: degree 257
+    Node 199628: degree 230
+    Node 515301: degree 228
 
 Command-line Arguments:
 
