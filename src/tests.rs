@@ -4,11 +4,11 @@ mod tests {
     use crate::connected_components::connected_components;
 
     /// Tests connected components on a small undirected graph.
-    ///
+    
     /// Graph structure:
     /// 1 - 2 - 3 (Component 1)
     /// 4 - 5     (Component 2)
-    ///
+
     /// Expected Output:
     /// Two connected components: {1, 2, 3} and {4, 5}
     #[test]
@@ -47,10 +47,10 @@ mod tests {
     }
 
     /// Additional edge case: Test with a graph containing a single node.
-    ///
+    
     /// Graph structure:
     /// 1 (Component 1)
-    ///
+    
     /// Expected Output:
     /// One connected component: {1}
     #[test]
@@ -81,11 +81,11 @@ mod tests {
     }
 
     /// Additional edge case: Test with a graph containing two disconnected nodes.
-    ///
+    
     /// Graph structure:
     /// 1 (Component 1)
     /// 2 (Component 2)
-    ///
+    
     /// Expected Output:
     /// Two connected components: {1}, {2}
     #[test]
@@ -118,10 +118,10 @@ mod tests {
     }
 
     /// Additional edge case: Test with a graph where all nodes are connected in a single component.
-    ///
+    
     /// Graph structure:
     /// 1 - 2 - 3 - 4 (Single Component)
-    ///
+    
     /// Expected Output:
     /// One connected component: {1, 2, 3, 4}
     #[test]

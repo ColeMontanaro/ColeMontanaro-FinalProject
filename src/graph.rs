@@ -10,13 +10,13 @@ use std::io::{BufRead, BufReader};
 pub type Graph = HashMap<u32, HashSet<u32>>;
 
 /// Loads an undirected graph from a text file of node pairs.
-///
+
 /// # Inputs:
 /// * `path` - Path to the file containing the edge list.
-///
+
 /// # Output:
 /// * A graph as a HashMap from node ID to a set of neighbor node IDs.
-///
+
 /// # Logic:
 /// Reads file line-by-line, ignores comment lines (starting with '#'), splits node pairs,
 /// and inserts edges bidirectionally to represent an undirected graph.
@@ -44,6 +44,5 @@ pub fn load_graph(path: &str) -> Graph {
             graph.entry(v).or_default().insert(u);
         }
     }
-
     graph
 }
