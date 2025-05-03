@@ -5,10 +5,10 @@ use std::collections::{HashMap, HashSet};
 
 /// Computes local clustering coefficient for each node:
 ///   C(v) = (# edges among neighbors) / (possible edges among neighbors)
-///
+
 /// Inputs:
 /// - `graph`: adjacency list node → neighbor set
-///
+
 /// Output:
 /// - `Vec<(node, coeff)>` sorted by node ID
 pub fn clustering_coefficient(graph: &HashMap<u32, HashSet<u32>>) -> Vec<(u32, f64)> {
@@ -39,10 +39,10 @@ pub fn clustering_coefficient(graph: &HashMap<u32, HashSet<u32>>) -> Vec<(u32, f
 }
 
 /// Computes average clustering coefficient over all nodes.
-///
+
 /// Inputs:
 /// - `graph`: adjacency list
-///
+
 /// Output:
 /// - single `f64` average
 pub fn average_clustering(graph: &HashMap<u32, HashSet<u32>>) -> f64 {

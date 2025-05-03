@@ -5,14 +5,14 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 
 /// Computes betweenness centrality only for a given subset of source nodes.
-/// 
+ 
 /// Inputs:
 /// - `graph`: adjacency list of the graph.
 /// - `sources`: slice of node IDs to use as BFS sources.
-///
+
 /// Output:
 /// - `Vec<(node, score)>`: sorted descending by score.
-///
+
 /// Logic:
 /// - For each `s` in `sources`, run `bfs_paths` then `accumulate` to update scores.
 pub fn betweenness_centrality_subset(

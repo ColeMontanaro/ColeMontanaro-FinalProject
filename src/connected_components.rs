@@ -4,13 +4,13 @@
 use std::collections::{HashMap, HashSet};
 
 /// Identifies connected components in the graph.
-///
+
 /// Input:
 /// - `graph`: adjacency list node → neighbor set
-///
+
 /// Output:
 /// - `Vec<Vec<u32>>`: each inner Vec is one component’s nodes
-///
+
 /// Logic:
 /// - DFS from each unvisited node, collecting its component.
 pub fn connected_components(graph: &HashMap<u32, HashSet<u32>>) -> Vec<Vec<u32>> {

@@ -6,14 +6,14 @@ use std::collections::{HashMap, HashSet, VecDeque};
 
 /// Computes closeness centrality only for a given subset of source nodes:
 ///   C(v) = (reachable - 1) / (sum of distances to reachable nodes)
-///
+
 /// Inputs:
 /// - `graph`: adjacency list of the graph.
 /// - `sources`: slice of node IDs to compute centrality for.
-///
+
 /// Output:
 /// - `Vec<(node, score)>`: only for `sources`, sorted descending by score.
-///
+
 /// Logic:
 /// - For each `start` in `sources`, run a BFS reusing one queue & dist map to measure distances.
 pub fn closeness_centrality_subset(

@@ -9,13 +9,13 @@ use std::io::{BufRead, BufReader};
 pub type Graph = HashMap<u32, HashSet<u32>>;
 
 /// Reads an edge‑list file and builds a bidirectional graph.
-///
+
 /// Inputs:
 /// - `path`: path to edge list file (lines "u v", comments start with '#')
-///
+
 /// Output:
 /// - `Graph`: adjacency list
-///
+
 /// Logic:
 /// - Parse each valid line and insert edges both ways.
 pub fn load_graph(path: &str) -> Graph {
