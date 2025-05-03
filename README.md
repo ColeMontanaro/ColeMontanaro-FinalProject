@@ -1,4 +1,4 @@
-# Final Project Write‑Up
+# Cole Montanaro Final Project Write‑Up
 
 ## A. Project Overview
 **Goal**  
@@ -115,7 +115,7 @@ Node 502784: 514092.913860
 Node 154855: 394169.592840
 ~~~
 
-**Interpretation (Amazon takeaways)**  
+**Output Interpretation**  
 - **Unified product space** means any item can influence the entire catalog—great for recommendation coverage.  
 - **High‑degree hubs** (e.g., 548091) are prime “also‑bought” anchors; prioritizing them boosts cross‑selling.  
 - **Average clustering ≈ 0.4** reveals moderate natural bundles; leverage clusters for themed promotions.  
@@ -145,4 +145,4 @@ Node 154855: 394169.592840
 ---
 
 ## G. Citations
-N/A
+- N/A (I did not gather substantive external knowledge from sources while developing my project)
